@@ -358,7 +358,7 @@ function SlideOver({ item, onClose }) {
   return (
     <>
       <div className={`slideover-backdrop${isOpen ? ' so-open' : ''}`} onClick={onClose} />
-      <aside className={`slideover${isOpen ? ' so-open' : ''}`}>
+      <aside className={`slideover${isOpen ? ' so-open' : ''}`} onClick={e => e.stopPropagation()}>
         {item && (
           <>
             <div className="slideover-header">
@@ -368,7 +368,7 @@ function SlideOver({ item, onClose }) {
                   <div className="slideover-name">{item.name}</div>
                   <div className="slideover-author">por {item.author} · v{item.version}</div>
                 </div>
-                <button className="slideover-close" onClick={onClose}>{window.Icons.x}</button>
+                <button type="button" className="slideover-close" onClick={onClose}>{window.Icons.x}</button>
               </div>
               <div className="slideover-badges">
                 <span className={`badge badge-${item.type}`}>{window.typeLabel(item.type)}</span>
@@ -388,17 +388,17 @@ function SlideOver({ item, onClose }) {
                 </div>
                 {item.type !== 'hook' && (
                   <div className="so-install-tabs">
-                    <button className={`so-install-tab${tab === 'global' ? ' active' : ''}`} onClick={() => setTab('global')}>
+                    <button type="button" className={`so-install-tab${tab === 'global' ? ' active' : ''}`} onClick={() => setTab('global')}>
                       Global
                     </button>
-                    <button className={`so-install-tab${tab === 'project' ? ' active' : ''}`} onClick={() => setTab('project')}>
+                    <button type="button" className={`so-install-tab${tab === 'project' ? ' active' : ''}`} onClick={() => setTab('project')}>
                       Projeto
                     </button>
                   </div>
                 )}
                 <pre className="so-install-cmd">{cmd}</pre>
                 <div className="so-install-actions">
-                  <button className={`so-copy-btn${copied ? ' copied' : ''}`} onClick={copyCmd}>
+                  <button type="button" className={`so-copy-btn${copied ? ' copied' : ''}`} onClick={copyCmd}>
                     {copied ? window.Icons.check : window.Icons.copy}
                     {copied ? 'Copiado!' : 'Copiar comando'}
                   </button>
