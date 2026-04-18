@@ -327,10 +327,14 @@ function SlideOver({ item, onClose }) {
     const out = []; let inUl = false, inPre = false;
 
     function il(text) {
+      const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
       return text
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, url) => {
+          if (/^(javascript|data|vbscript):/i.test(url.trim())) return esc(label);
+          return `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`;
+        });
     }
     function end() { if (inUl) { out.push('</ul>'); inUl = false; } }
 
@@ -443,7 +447,7 @@ function SlideOver({ item, onClose }) {
 
 function App() {
   const [theme, setTheme] = useState(
-    () => localStorage.getItem('theme') || 'dark'
+    () => localStorage.getItem('theme') === 'light' ? 'light' : 'dark'
   );
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);

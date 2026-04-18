@@ -293,7 +293,10 @@ function il(text) {
   return text
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g,     '<em>$1</em>')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, url) => {
+      if (/^(javascript|data|vbscript):/i.test(url.trim())) return h(label);
+      return `<a href="${h(url)}" target="_blank" rel="noopener noreferrer">${h(label)}</a>`;
+    });
 }
 
 // ── Event listeners ─────────────────────────────────────
@@ -324,7 +327,7 @@ function setupListeners() {
 
 // ── Helpers ─────────────────────────────────────────────
 function h(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
 function typeIcon(t)  { return { skill:'⚡', playbook:'📋', agent:'🤖', hook:'🔗' }[t] || '✦'; }
