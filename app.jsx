@@ -269,6 +269,20 @@ function SlideOver({ item, onClose }) {
   const [copied, setCopied] = useState(false);
   const [docs, setDocs] = useState(null);
   const [docsLoading, setDocsLoading] = useState(false);
+  const asideRef = useRef(null);
+  const isOpen = !!item;
+
+  // Close when clicking outside the panel (native listener, capture phase)
+  useEffect(() => {
+    if (!isOpen) return;
+    function onOutsideClick(e) {
+      if (asideRef.current && !asideRef.current.contains(e.target)) {
+        onClose();
+      }
+    }
+    document.addEventListener('mousedown', onOutsideClick);
+    return () => document.removeEventListener('mousedown', onOutsideClick);
+  }, [isOpen]);
 
   useEffect(() => {
     if (!item) return;
@@ -298,7 +312,6 @@ function SlideOver({ item, onClose }) {
     })();
   }, [item ? item.id : null]);
 
-  const isOpen = !!item;
   const cmd = item ? (tab === 'global' ? item.cmdGlobal : item.cmdProject) : '';
 
   function copyCmd() {
@@ -357,8 +370,8 @@ function SlideOver({ item, onClose }) {
 
   return (
     <>
-      <div className={`slideover-backdrop${isOpen ? ' so-open' : ''}`} onClick={onClose} />
-      <aside className={`slideover${isOpen ? ' so-open' : ''}`} onClick={e => e.stopPropagation()}>
+      <div className={`slideover-backdrop${isOpen ? ' so-open' : ''}`} />
+      <aside ref={asideRef} className={`slideover${isOpen ? ' so-open' : ''}`}>
         {item && (
           <>
             <div className="slideover-header">
