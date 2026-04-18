@@ -170,19 +170,27 @@ function TypeTabs({ activeType, onSelect, items }) {
   );
 }
 
-// ── InstallPopover ───────────────────────────────────────
+// ── Card ────────────────────────────────────────────────
 
-function InstallPopover({ item, onClose, onDetails }) {
-  const [copied, setCopied] = useState(false);
-  const cmd = item.cmdGlobal;
+function Card({ item, onOpenDetails }) {
+  const [expanded, setExpanded] = useState(false);
+  const [copied, setCopied]     = useState(false);
 
-  function copy() {
+  function toggle(e) {
+    e.stopPropagation();
+    setExpanded(x => !x);
+    setCopied(false);
+  }
+
+  function copy(e) {
+    e.stopPropagation();
+    const cmd  = item.cmdGlobal;
     const done = () => { setCopied(true); setTimeout(() => setCopied(false), 2000); };
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(cmd).then(done).catch(() => { fallback(); done(); });
-    } else { fallback(); done(); }
-    function fallback() {
-      const ta = Object.assign(document.createElement('textarea'), { value: cmd });
+      navigator.clipboard.writeText(cmd).then(done).catch(() => { fb(cmd); done(); });
+    } else { fb(cmd); done(); }
+    function fb(t) {
+      const ta = Object.assign(document.createElement('textarea'), { value: t });
       ta.style.cssText = 'position:fixed;opacity:0';
       document.body.appendChild(ta); ta.select(); document.execCommand('copy');
       document.body.removeChild(ta);
@@ -190,34 +198,9 @@ function InstallPopover({ item, onClose, onDetails }) {
   }
 
   return (
-    <div className="install-pop" onClick={e => e.stopPropagation()}>
-      <div className="install-pop-header">
-        <span className="install-pop-title">{window.Icons.download} Instalar globalmente</span>
-        <button className="install-pop-close" onClick={onClose}>{window.Icons.x}</button>
-      </div>
-      <pre className="install-pop-cmd">{cmd}</pre>
-      <div className="install-pop-footer">
-        <button className={`install-pop-copy${copied ? ' copied' : ''}`} onClick={copy}>
-          {copied ? window.Icons.check : window.Icons.copy}
-          {copied ? 'Copiado!' : 'Copiar'}
-        </button>
-        <button className="install-pop-details" onClick={onDetails}>
-          Mais opções →
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ── Card ────────────────────────────────────────────────
-
-function Card({ item, onOpenDetails }) {
-  const [showPop, setShowPop] = useState(false);
-
-  return (
     <article
-      className={`card${item.featured ? ' featured' : ''}`}
-      onClick={() => { if (!showPop) onOpenDetails(item); }}
+      className={`card${item.featured ? ' featured' : ''}${expanded ? ' card-expanded' : ''}`}
+      onClick={toggle}
     >
       <div className="card-top">
         <span className="card-icon">{item.icon}</span>
@@ -231,28 +214,29 @@ function Card({ item, onOpenDetails }) {
         </div>
         <div className="card-author">by {item.author}</div>
       </div>
-      <div className="card-actions" onClick={e => e.stopPropagation()}>
-        <button
-          className="card-btn-primary"
-          onClick={() => setShowPop(p => !p)}
-        >
-          {window.Icons.download} Instalar
-        </button>
-        <a
-          className="card-btn-secondary"
-          href={`https://github.com/${item.repo}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {window.Icons.external} GitHub
-        </a>
-      </div>
-      {showPop && (
-        <InstallPopover
-          item={item}
-          onClose={() => setShowPop(false)}
-          onDetails={() => { setShowPop(false); onOpenDetails(item); }}
-        />
+
+      {expanded && (
+        <div className="card-install-box" onClick={e => e.stopPropagation()}>
+          <pre className="card-install-cmd">{item.cmdGlobal}</pre>
+          <div className="card-install-actions">
+            <button className={`card-copy-btn${copied ? ' copied' : ''}`} onClick={copy}>
+              {copied ? window.Icons.check : window.Icons.copy}
+              {copied ? 'Copiado!' : 'Copiar'}
+            </button>
+            <a
+              className="card-gh-btn"
+              href={`https://github.com/${item.repo}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+            >
+              {window.Icons.external} GitHub
+            </a>
+            <button className="card-more-btn" onClick={e => { e.stopPropagation(); onOpenDetails(item); }}>
+              Mais detalhes
+            </button>
+          </div>
+        </div>
       )}
     </article>
   );
