@@ -190,6 +190,19 @@ function Card({ item, onClick }) {
         </div>
         <div className="card-author">by {item.author}</div>
       </div>
+      <div className="card-actions" onClick={e => e.stopPropagation()}>
+        <button className="card-btn-primary" onClick={onClick}>
+          {window.Icons.download} Instalar
+        </button>
+        <a
+          className="card-btn-secondary"
+          href={`https://github.com/${item.repo}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {window.Icons.external} GitHub
+        </a>
+      </div>
     </article>
   );
 }
