@@ -172,35 +172,11 @@ function TypeTabs({ activeType, onSelect, items }) {
 
 // ── Card ────────────────────────────────────────────────
 
-function Card({ item, onOpenDetails }) {
-  const [expanded, setExpanded] = useState(false);
-  const [copied, setCopied]     = useState(false);
-
-  function toggle(e) {
-    e.stopPropagation();
-    setExpanded(x => !x);
-    setCopied(false);
-  }
-
-  function copy(e) {
-    e.stopPropagation();
-    const cmd  = item.cmdGlobal;
-    const done = () => { setCopied(true); setTimeout(() => setCopied(false), 2000); };
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(cmd).then(done).catch(() => { fb(cmd); done(); });
-    } else { fb(cmd); done(); }
-    function fb(t) {
-      const ta = Object.assign(document.createElement('textarea'), { value: t });
-      ta.style.cssText = 'position:fixed;opacity:0';
-      document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-      document.body.removeChild(ta);
-    }
-  }
-
+function Card({ item, onOpen }) {
   return (
     <article
-      className={`card${item.featured ? ' featured' : ''}${expanded ? ' card-expanded' : ''}`}
-      onClick={toggle}
+      className={`card${item.featured ? ' featured' : ''}`}
+      onClick={() => onOpen(item)}
     >
       <div className="card-top">
         <span className="card-icon">{item.icon}</span>
@@ -214,30 +190,6 @@ function Card({ item, onOpenDetails }) {
         </div>
         <div className="card-author">by {item.author}</div>
       </div>
-
-      {expanded && (
-        <div className="card-install-box" onClick={e => e.stopPropagation()}>
-          <pre className="card-install-cmd">{item.cmdGlobal}</pre>
-          <div className="card-install-actions">
-            <button className={`card-copy-btn${copied ? ' copied' : ''}`} onClick={copy}>
-              {copied ? window.Icons.check : window.Icons.copy}
-              {copied ? 'Copiado!' : 'Copiar'}
-            </button>
-            <a
-              className="card-gh-btn"
-              href={`https://github.com/${item.repo}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={e => e.stopPropagation()}
-            >
-              {window.Icons.external} GitHub
-            </a>
-            <button className="card-more-btn" onClick={e => { e.stopPropagation(); onOpenDetails(item); }}>
-              Mais detalhes
-            </button>
-          </div>
-        </div>
-      )}
     </article>
   );
 }
@@ -248,7 +200,7 @@ function GridView({ items, onOpen }) {
   return (
     <div className="grid">
       {items.map(item => (
-        <Card key={item.id} item={item} onOpenDetails={onOpen} />
+        <Card key={item.id} item={item} onOpen={onOpen} />
       ))}
     </div>
   );
@@ -429,36 +381,36 @@ function SlideOver({ item, onClose }) {
             </div>
 
             <div className="slideover-body">
-              <div className="install-block">
-                <div className="install-title">{window.Icons.download} Instalar</div>
+              <div className="so-install-block">
+                <div className="so-install-label">
+                  {window.Icons.download}
+                  {item.type !== 'hook' ? 'Instalar' : 'Configurar'}
+                </div>
                 {item.type !== 'hook' && (
-                  <div className="install-tabs">
-                    <button className={`install-tab${tab === 'global' ? ' active' : ''}`} onClick={() => setTab('global')}>
-                      {window.Icons.globe} Global (~/.claude)
+                  <div className="so-install-tabs">
+                    <button className={`so-install-tab${tab === 'global' ? ' active' : ''}`} onClick={() => setTab('global')}>
+                      Global
                     </button>
-                    <button className={`install-tab${tab === 'project' ? ' active' : ''}`} onClick={() => setTab('project')}>
-                      {window.Icons.folder} Projeto (.claude/)
+                    <button className={`so-install-tab${tab === 'project' ? ' active' : ''}`} onClick={() => setTab('project')}>
+                      Projeto
                     </button>
                   </div>
                 )}
-                <div className="install-cmd-wrap">
-                  <pre className="install-cmd">{cmd}</pre>
-                  <button className={`copy-btn${copied ? ' copied' : ''}`} onClick={copyCmd}>
+                <pre className="so-install-cmd">{cmd}</pre>
+                <div className="so-install-actions">
+                  <button className={`so-copy-btn${copied ? ' copied' : ''}`} onClick={copyCmd}>
                     {copied ? window.Icons.check : window.Icons.copy}
-                    <span>{copied ? 'Copiado!' : 'Copiar'}</span>
+                    {copied ? 'Copiado!' : 'Copiar comando'}
                   </button>
+                  <a
+                    className="so-gh-btn"
+                    href={`https://github.com/${item.repo}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {window.Icons.external} Ver no GitHub
+                  </a>
                 </div>
-              </div>
-
-              <div className="slideover-actions">
-                <a
-                  className="btn-primary"
-                  href={`https://github.com/${item.repo}`}
-                  target="_blank"
-                  rel="noopener"
-                >
-                  {window.Icons.external} Ver no GitHub
-                </a>
               </div>
 
               <div className="slideover-docs">
