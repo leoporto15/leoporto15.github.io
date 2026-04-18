@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Claude Marketplace — Skills, Playbooks &amp; Agents</title>
-  <meta name="description" content="Descubra e instale skills, playbooks, agentes e hooks criados pela comunidade para o Claude Code.">
-  <meta property="og:title" content="Claude Marketplace">
-  <meta property="og:description" content="Skills, playbooks, agentes e hooks para o Claude Code">
+  <title>Marketplace de Soluções de IA</title>
+  <meta name="description" content="Descubra e instale skills, playbooks, agentes e hooks para Claude Code, Devin e outras IAs de desenvolvimento.">
+  <meta property="og:title" content="Marketplace de Soluções de IA">
+  <meta property="og:description" content="Skills, playbooks Devin, agentes e hooks para acelerar seu fluxo com IA.">
   <meta property="og:type" content="website">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,8 +19,8 @@
   <header class="header">
     <div class="header-inner">
       <a href="/" class="logo">
-        <span class="logo-icon">⚡</span>
-        <span class="logo-text">Claude <strong>Marketplace</strong></span>
+        <span class="logo-icon">✦</span>
+        <span class="logo-text">Soluções de IA <strong>Marketplace</strong></span>
       </a>
       <nav class="nav">
         <a href="#browse" class="nav-link">Explorar</a>
@@ -29,19 +29,61 @@
     </div>
   </header>
 
-  <!-- Hero -->
+  <!-- Hero — full viewport -->
   <section class="hero">
     <div class="hero-bg"></div>
-    <div class="hero-content">
-      <div class="hero-badge">Beta</div>
-      <h1 class="hero-title">
-        O Marketplace para<br>
-        <span class="gradient-text">Claude Code</span>
-      </h1>
-      <p class="hero-subtitle">
-        Descubra skills, playbooks, agentes e hooks criados pela comunidade.<br>
-        Instale em segundos e amplifique seu fluxo de trabalho.
-      </p>
+    <div class="hero-inner">
+
+      <div class="hero-text">
+        <div class="hero-badge">Beta</div>
+        <h1 class="hero-title">
+          Marketplace de<br><span class="gradient-text">Soluções de IA</span>
+        </h1>
+        <p class="hero-subtitle">
+          Skills para Claude Code, playbooks para Devin, agentes autônomos e hooks.<br>
+          Instale em segundos e acelere seu fluxo de desenvolvimento com IA.
+        </p>
+      </div>
+
+      <!-- Large category cards -->
+      <div class="hero-categories" id="hero-categories">
+        <button class="hero-cat-card" data-type="skill" onclick="heroSelect('skill')">
+          <span class="hero-cat-icon">⚡</span>
+          <span class="hero-cat-name">Skills</span>
+          <span class="hero-cat-desc">Slash commands para Claude Code</span>
+          <span class="hero-cat-count" id="hc-skill">0</span>
+        </button>
+        <button class="hero-cat-card" data-type="playbook" onclick="heroSelect('playbook')">
+          <span class="hero-cat-icon">📋</span>
+          <span class="hero-cat-name">Playbooks</span>
+          <span class="hero-cat-desc">Fluxos automáticos para Devin</span>
+          <span class="hero-cat-count" id="hc-playbook">0</span>
+        </button>
+        <button class="hero-cat-card" data-type="agent" onclick="heroSelect('agent')">
+          <span class="hero-cat-icon">🤖</span>
+          <span class="hero-cat-name">Agentes</span>
+          <span class="hero-cat-desc">Subagentes especializados</span>
+          <span class="hero-cat-count" id="hc-agent">0</span>
+        </button>
+        <button class="hero-cat-card" data-type="hook" onclick="heroSelect('hook')">
+          <span class="hero-cat-icon">🔗</span>
+          <span class="hero-cat-name">Hooks</span>
+          <span class="hero-cat-desc">Automações por evento</span>
+          <span class="hero-cat-count" id="hc-hook">0</span>
+        </button>
+      </div>
+
+      <div class="scroll-hint" onclick="scrollToBrowse()">
+        Explorar tudo <span class="scroll-arrow">↓</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Browse — below the fold -->
+  <main class="browse" id="browse">
+    <div class="container">
+
+      <!-- Search bar -->
       <div class="search-bar">
         <span class="search-icon">🔍</span>
         <input
@@ -52,76 +94,15 @@
         />
         <kbd class="search-shortcut">⌘K</kbd>
       </div>
-      <div class="hero-stats">
-        <div class="hero-stat">
-          <strong id="stat-total">0</strong>
-          <span>Itens</span>
-        </div>
-        <div class="hero-stat-divider"></div>
-        <div class="hero-stat">
-          <strong id="stat-skills">0</strong>
-          <span>Skills</span>
-        </div>
-        <div class="hero-stat-divider"></div>
-        <div class="hero-stat">
-          <strong id="stat-agents">0</strong>
-          <span>Agentes</span>
-        </div>
-        <div class="hero-stat-divider"></div>
-        <div class="hero-stat">
-          <strong id="stat-playbooks">0</strong>
-          <span>Playbooks</span>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- Categories -->
-  <section class="categories">
-    <div class="container">
-      <div class="category-grid">
-        <button class="category-card active" data-type="all">
-          <span class="cat-icon">✦</span>
-          <span class="cat-name">Todos</span>
-        </button>
-        <button class="category-card" data-type="skill">
-          <span class="cat-icon">⚡</span>
-          <div>
-            <span class="cat-name">Skills</span>
-            <span class="cat-desc">Slash commands</span>
-          </div>
-        </button>
-        <button class="category-card" data-type="playbook">
-          <span class="cat-icon">📋</span>
-          <div>
-            <span class="cat-name">Playbooks</span>
-            <span class="cat-desc">Fluxos de trabalho</span>
-          </div>
-        </button>
-        <button class="category-card" data-type="agent">
-          <span class="cat-icon">🤖</span>
-          <div>
-            <span class="cat-name">Agentes</span>
-            <span class="cat-desc">Automações</span>
-          </div>
-        </button>
-        <button class="category-card" data-type="hook">
-          <span class="cat-icon">🔗</span>
-          <div>
-            <span class="cat-name">Hooks</span>
-            <span class="cat-desc">Triggers automáticos</span>
-          </div>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Browse -->
-  <main class="browse" id="browse">
-    <div class="container">
-
+      <!-- Toolbar -->
       <div class="toolbar">
-        <span class="results-count" id="results-count">Carregando…</span>
+        <div class="toolbar-left">
+          <span class="results-count" id="results-count">Carregando…</span>
+          <button class="clear-filter-btn" id="clear-filter-btn" onclick="clearFilter()" hidden>
+            ✕ Limpar filtro
+          </button>
+        </div>
         <select class="sort-select" id="sort-select">
           <option value="featured">Destaques primeiro</option>
           <option value="name">Nome A–Z</option>
@@ -129,12 +110,13 @@
         </select>
       </div>
 
+      <!-- Items grid -->
       <div class="items-grid" id="items-grid"></div>
 
       <div class="empty-state" id="empty-state" hidden>
         <div class="empty-icon">🔍</div>
         <h3>Nenhum item encontrado</h3>
-        <p>Tente buscar por outro termo ou remover os filtros ativos.</p>
+        <p>Tente buscar por outro termo ou limpar os filtros.</p>
       </div>
 
     </div>
@@ -158,14 +140,12 @@
         <p class="modal-description" id="modal-description"></p>
         <div class="modal-tags" id="modal-tags"></div>
 
-        <!-- Install -->
         <div class="install-section">
           <h3 class="section-title">Instalação</h3>
           <div class="install-tabs">
             <button class="install-tab active" onclick="showInstallTab('user', this)">👤 Global</button>
             <button class="install-tab" onclick="showInstallTab('project', this)">📁 Projeto</button>
           </div>
-
           <div id="install-tab-user">
             <p class="install-note">Disponível em todos os projetos</p>
             <div class="code-block">
@@ -173,7 +153,6 @@
               <button class="copy-btn" onclick="copyCmd('install-cmd-user', this)">📋 Copiar</button>
             </div>
           </div>
-
           <div id="install-tab-project" style="display:none">
             <p class="install-note">Disponível apenas no projeto atual</p>
             <div class="code-block">
@@ -183,7 +162,6 @@
           </div>
         </div>
 
-        <!-- Docs -->
         <div class="docs-section">
           <h3 class="section-title">Documentação</h3>
           <div class="docs-loading" id="docs-loading">Carregando…</div>
@@ -198,13 +176,13 @@
     </div>
   </div>
 
-  <!-- Add to Registry Banner -->
+  <!-- CTA -->
   <section class="cta-section">
     <div class="container">
       <div class="cta-card">
         <div class="cta-text">
-          <h2>Publique seu próprio item</h2>
-          <p>Criou uma skill, playbook ou agente útil? Adicione ao registry e compartilhe com a comunidade.</p>
+          <h2>Publique sua solução</h2>
+          <p>Criou uma skill, playbook Devin, agente ou hook? Adicione ao registry e compartilhe com a comunidade.</p>
         </div>
         <a href="https://github.com/leoporto15/leoporto15.github.io/blob/main/registry.json" target="_blank" class="btn btn-primary">
           Contribuir com registry.json →
@@ -218,16 +196,17 @@
     <div class="container">
       <div class="footer-content">
         <div class="footer-brand">
-          <span class="logo-icon">⚡</span>
-          <span>Claude Marketplace</span>
+          <span class="logo-icon">✦</span>
+          <span>Marketplace de Soluções de IA</span>
         </div>
         <div class="footer-links">
           <a href="https://github.com/leoporto15/leoporto15.github.io" target="_blank">GitHub</a>
           <a href="https://github.com/leoporto15/leoporto15.github.io/blob/main/registry.json" target="_blank">registry.json</a>
-          <a href="https://docs.anthropic.com/claude-code" target="_blank">Claude Code Docs</a>
+          <a href="https://docs.anthropic.com/claude-code" target="_blank">Claude Code</a>
+          <a href="https://docs.devin.ai" target="_blank">Devin Docs</a>
         </div>
       </div>
-      <p class="footer-copy">Feito com ♥ para a comunidade Claude Code</p>
+      <p class="footer-copy">Feito com ♥ para a comunidade de desenvolvimento com IA</p>
     </div>
   </footer>
 

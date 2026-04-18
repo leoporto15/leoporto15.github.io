@@ -1,5 +1,5 @@
 /* =====================================================
-   Claude Marketplace — app.js
+   Marketplace de Soluções de IA — app.js
    ===================================================== */
 
 let registry = null;
@@ -23,7 +23,7 @@ async function init() {
         Não foi possível carregar o registry.
         <a href="registry.json">Ver JSON</a>
       </p>`;
-    document.getElementById('results-count').textContent = '';
+    setText('results-count', '');
     console.error('Registry load failed:', err);
   }
 }
@@ -31,10 +31,33 @@ async function init() {
 // ── Stats ───────────────────────────────────────────────
 function updateStats() {
   const { items } = registry;
-  setText('stat-total',     items.length);
-  setText('stat-skills',    items.filter(i => i.type === 'skill').length);
-  setText('stat-agents',    items.filter(i => i.type === 'agent').length);
-  setText('stat-playbooks', items.filter(i => i.type === 'playbook').length);
+  const count = (type) => items.filter(i => i.type === type).length;
+  setText('hc-skill',    count('skill'));
+  setText('hc-playbook', count('playbook'));
+  setText('hc-agent',    count('agent'));
+  setText('hc-hook',     count('hook'));
+}
+
+// ── Hero category selection ─────────────────────────────
+function heroSelect(type) {
+  activeType = type;
+  document.querySelectorAll('.hero-cat-card').forEach(c => {
+    c.classList.toggle('active', c.dataset.type === type);
+  });
+  document.getElementById('clear-filter-btn').hidden = false;
+  render();
+  scrollToBrowse();
+}
+
+function clearFilter() {
+  activeType = 'all';
+  document.querySelectorAll('.hero-cat-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('clear-filter-btn').hidden = true;
+  render();
+}
+
+function scrollToBrowse() {
+  document.getElementById('browse').scrollIntoView({ behavior: 'smooth' });
 }
 
 // ── Render grid ─────────────────────────────────────────
@@ -59,7 +82,6 @@ function getFiltered() {
   } else if (sortBy === 'type') {
     items.sort((a, b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
   } else {
-    // featured first
     items.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
   }
 
@@ -83,7 +105,6 @@ function render() {
   grid.innerHTML = items.map((item, idx) => `
     <div class="item-card"
          data-type="${item.type}"
-         data-id="${h(item.id)}"
          onclick="openModal('${h(item.id)}')"
          style="animation-delay:${idx * 25}ms">
       <div class="card-header">
@@ -96,13 +117,10 @@ function render() {
         </div>
         <span class="type-badge type-badge-${item.type}">${typeLabel(item.type)}</span>
       </div>
-
       <p class="card-description">${h(item.description)}</p>
-
       <div class="card-tags">
         ${(item.tags || []).slice(0, 4).map(t => `<span class="tag">${h(t)}</span>`).join('')}
       </div>
-
       <div class="card-footer">
         <div class="card-meta">
           <span>v${h(item.version || '1.0.0')}</span>
@@ -145,22 +163,16 @@ function openModal(id) {
   document.getElementById('modal-tags').innerHTML =
     (item.tags || []).map(t => `<span class="tag">${h(t)}</span>`).join('');
 
-  // Install commands
   setText('install-cmd-user',    buildCmd(item, true));
   setText('install-cmd-project', buildCmd(item, false));
 
-  // Repo link
-  const repoBtn = document.getElementById('modal-repo-btn');
-  repoBtn.href = `https://github.com/${item.repo}`;
+  document.getElementById('modal-repo-btn').href = `https://github.com/${item.repo}`;
 
-  // Reset UI state
-  showInstallTab('user', document.querySelector('.install-tab'));
+  showInstallTab('user', null);
 
-  // Show modal
   document.getElementById('modal-backdrop').classList.add('is-open');
   document.body.style.overflow = 'hidden';
 
-  // Load docs async
   loadDocs(item);
 }
 
@@ -174,16 +186,16 @@ function buildCmd(item, global) {
       return global
         ? `mkdir -p ~/.claude/commands && curl -fsSL "${raw}" -o ~/.claude/commands/${name}.md`
         : `mkdir -p .claude/commands && curl -fsSL "${raw}" -o .claude/commands/${name}.md`;
+    case 'agent':
+      return global
+        ? `mkdir -p ~/.claude/agents && curl -fsSL "${raw}" -o ~/.claude/agents/${name}.md`
+        : `mkdir -p .claude/agents && curl -fsSL "${raw}" -o .claude/agents/${name}.md`;
     case 'playbook':
       return global
-        ? `mkdir -p ~/.claude/playbooks && curl -fsSL "${raw}" -o ~/.claude/playbooks/${name}.md`
-        : `mkdir -p .claude/playbooks && curl -fsSL "${raw}" -o .claude/playbooks/${name}.md`;
+        ? `mkdir -p ~/.devin/playbooks && curl -fsSL "${raw}" -o ~/.devin/playbooks/${name}.yaml`
+        : `mkdir -p .devin/playbooks && curl -fsSL "${raw}" -o .devin/playbooks/${name}.yaml`;
     case 'hook':
-      return global
-        ? `mkdir -p ~/.claude/hooks && curl -fsSL "${raw}" -o ~/.claude/hooks/${file}`
-        : `mkdir -p .claude/hooks && curl -fsSL "${raw}" -o .claude/hooks/${file}`;
-    case 'agent':
-      return `# Siga as instruções em:\n# https://github.com/${item.repo}`;
+      return `# Adicione ao settings.json do Claude Code\n# Veja o arquivo em:\n# https://github.com/${item.repo}/blob/main/${item.file}`;
     default:
       return `curl -fsSL "${raw}" -o ${file}`;
   }
@@ -208,13 +220,11 @@ async function loadDocs(item) {
       loading.style.display = 'none';
       content.innerHTML = renderMarkdown(md);
       return;
-    } catch {
-      continue;
-    }
+    } catch { continue; }
   }
 
   loading.style.display = 'none';
-  content.innerHTML = `<p style="color:var(--text-3)">Documentação disponível em:
+  content.innerHTML = `<p style="color:var(--text-3)">Documentação em:
     <a href="https://github.com/${item.repo}" target="_blank" rel="noopener">
       github.com/${item.repo}
     </a></p>`;
@@ -227,122 +237,86 @@ function closeModal() {
 }
 
 // ── Install tabs ────────────────────────────────────────
-function showInstallTab(tab, clickedBtn) {
+function showInstallTab(tab, _btn) {
   document.getElementById('install-tab-user').style.display    = tab === 'user'    ? 'block' : 'none';
   document.getElementById('install-tab-project').style.display = tab === 'project' ? 'block' : 'none';
-  document.querySelectorAll('.install-tab').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.install-tab')[tab === 'user' ? 0 : 1].classList.add('active');
+  document.querySelectorAll('.install-tab').forEach((b, i) => {
+    b.classList.toggle('active', (tab === 'user') === (i === 0));
+  });
 }
 
 // ── Copy to clipboard ───────────────────────────────────
 function copyCmd(elementId, btn) {
   const text = document.getElementById(elementId).textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = '✓ Copiado!';
-    btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = '📋 Copiar';
-      btn.classList.remove('copied');
-    }, 2000);
-  }).catch(() => {
-    // Fallback for older browsers
-    const ta = document.createElement('textarea');
-    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
+  const done = () => {
     btn.textContent = '✓ Copiado!';
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = '📋 Copiar'; btn.classList.remove('copied'); }, 2000);
-  });
+  };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done) : (() => {
+    const ta = Object.assign(document.createElement('textarea'),
+      { value: text, style: 'position:fixed;opacity:0' });
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta); done();
+  })();
 }
 
-// ── Simple Markdown renderer ────────────────────────────
+// ── Markdown renderer ───────────────────────────────────
 function renderMarkdown(md) {
-  // Escape HTML first
-  let s = md
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-
-  // Fenced code blocks
-  s = s.replace(/```(?:\w+)?\n([\s\S]*?)```/g, (_, code) =>
-    `<pre><code>${code.trim()}</code></pre>`);
-
-  // Inline code
+  let s = md.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  s = s.replace(/```(?:\w+)?\n([\s\S]*?)```/g, (_, c) => `<pre><code>${c.trim()}</code></pre>`);
   s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
 
   const lines = s.split('\n');
-  const out = [];
-  let inUl = false, inPre = false;
+  const out = []; let inUl = false, inPre = false;
 
   for (const raw of lines) {
     if (raw.includes('<pre>'))  { inPre = true; }
     if (raw.includes('</pre>')) { inPre = false; out.push(raw); continue; }
     if (inPre) { out.push(raw); continue; }
 
-    if (/^### /.test(raw)) {
-      closeList(); out.push(`<h3>${inline(raw.slice(4))}</h3>`);
-    } else if (/^## /.test(raw)) {
-      closeList(); out.push(`<h2>${inline(raw.slice(3))}</h2>`);
-    } else if (/^# /.test(raw)) {
-      closeList(); out.push(`<h1>${inline(raw.slice(2))}</h1>`);
-    } else if (/^> /.test(raw)) {
-      closeList(); out.push(`<blockquote>${inline(raw.slice(2))}</blockquote>`);
-    } else if (/^[-*] /.test(raw)) {
-      if (!inUl) { out.push('<ul>'); inUl = true; }
-      out.push(`<li>${inline(raw.slice(2))}</li>`);
-    } else if (raw.trim() === '') {
-      closeList(); out.push('');
-    } else {
-      closeList(); out.push(`<p>${inline(raw)}</p>`);
-    }
+    if (/^### /.test(raw))    { end(); out.push(`<h3>${il(raw.slice(4))}</h3>`); }
+    else if (/^## /.test(raw)){ end(); out.push(`<h2>${il(raw.slice(3))}</h2>`); }
+    else if (/^# /.test(raw)) { end(); out.push(`<h1>${il(raw.slice(2))}</h1>`); }
+    else if (/^> /.test(raw)) { end(); out.push(`<blockquote>${il(raw.slice(2))}</blockquote>`); }
+    else if (/^[-*] /.test(raw)) { if (!inUl) { out.push('<ul>'); inUl = true; } out.push(`<li>${il(raw.slice(2))}</li>`); }
+    else if (raw.trim() === '') { end(); out.push(''); }
+    else { end(); out.push(`<p>${il(raw)}</p>`); }
   }
-  closeList();
+  end();
   return out.join('\n');
 
-  function closeList() {
-    if (inUl) { out.push('</ul>'); inUl = false; }
-  }
+  function end() { if (inUl) { out.push('</ul>'); inUl = false; } }
 }
 
-function inline(text) {
+function il(text) {
   return text
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g,     '<em>$1</em>')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g,
-      '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
 }
 
 // ── Event listeners ─────────────────────────────────────
 function setupListeners() {
   document.getElementById('search-input').addEventListener('input', e => {
     searchQuery = e.target.value.trim();
+    if (searchQuery) {
+      activeType = 'all';
+      document.querySelectorAll('.hero-cat-card').forEach(c => c.classList.remove('active'));
+      document.getElementById('clear-filter-btn').hidden = true;
+    }
     render();
-  });
-
-  document.querySelectorAll('.category-card').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.category-card').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeType = btn.dataset.type;
-      render();
-    });
   });
 
   document.getElementById('sort-select').addEventListener('change', e => {
-    sortBy = e.target.value;
-    render();
-  });
-
-  document.getElementById('modal-backdrop').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeModal();
+    sortBy = e.target.value; render();
   });
 
   document.addEventListener('keydown', e => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault();
-      document.getElementById('search-input').focus();
+      scrollToBrowse();
+      setTimeout(() => document.getElementById('search-input').focus(), 400);
     }
     if (e.key === 'Escape') closeModal();
   });
@@ -350,18 +324,10 @@ function setupListeners() {
 
 // ── Helpers ─────────────────────────────────────────────
 function h(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function setText(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = val;
-}
+function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
 function typeIcon(t)  { return { skill:'⚡', playbook:'📋', agent:'🤖', hook:'🔗' }[t] || '✦'; }
 function typeLabel(t) { return { skill:'Skill', playbook:'Playbook', agent:'Agente', hook:'Hook' }[t] || t; }
 
-// ── Go ───────────────────────────────────────────────────
 init();
