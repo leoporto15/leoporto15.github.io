@@ -170,13 +170,54 @@ function TypeTabs({ activeType, onSelect, items }) {
   );
 }
 
+// ── InstallPopover ───────────────────────────────────────
+
+function InstallPopover({ item, onClose, onDetails }) {
+  const [copied, setCopied] = useState(false);
+  const cmd = item.cmdGlobal;
+
+  function copy() {
+    const done = () => { setCopied(true); setTimeout(() => setCopied(false), 2000); };
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(cmd).then(done).catch(() => { fallback(); done(); });
+    } else { fallback(); done(); }
+    function fallback() {
+      const ta = Object.assign(document.createElement('textarea'), { value: cmd });
+      ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+  }
+
+  return (
+    <div className="install-pop" onClick={e => e.stopPropagation()}>
+      <div className="install-pop-header">
+        <span className="install-pop-title">{window.Icons.download} Instalar globalmente</span>
+        <button className="install-pop-close" onClick={onClose}>{window.Icons.x}</button>
+      </div>
+      <pre className="install-pop-cmd">{cmd}</pre>
+      <div className="install-pop-footer">
+        <button className={`install-pop-copy${copied ? ' copied' : ''}`} onClick={copy}>
+          {copied ? window.Icons.check : window.Icons.copy}
+          {copied ? 'Copiado!' : 'Copiar'}
+        </button>
+        <button className="install-pop-details" onClick={onDetails}>
+          Mais opções →
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Card ────────────────────────────────────────────────
 
-function Card({ item, onClick }) {
+function Card({ item, onOpenDetails }) {
+  const [showPop, setShowPop] = useState(false);
+
   return (
     <article
       className={`card${item.featured ? ' featured' : ''}`}
-      onClick={onClick}
+      onClick={() => { if (!showPop) onOpenDetails(item); }}
     >
       <div className="card-top">
         <span className="card-icon">{item.icon}</span>
@@ -191,7 +232,10 @@ function Card({ item, onClick }) {
         <div className="card-author">by {item.author}</div>
       </div>
       <div className="card-actions" onClick={e => e.stopPropagation()}>
-        <button className="card-btn-primary" onClick={onClick}>
+        <button
+          className="card-btn-primary"
+          onClick={() => setShowPop(p => !p)}
+        >
           {window.Icons.download} Instalar
         </button>
         <a
@@ -203,6 +247,13 @@ function Card({ item, onClick }) {
           {window.Icons.external} GitHub
         </a>
       </div>
+      {showPop && (
+        <InstallPopover
+          item={item}
+          onClose={() => setShowPop(false)}
+          onDetails={() => { setShowPop(false); onOpenDetails(item); }}
+        />
+      )}
     </article>
   );
 }
@@ -213,7 +264,7 @@ function GridView({ items, onOpen }) {
   return (
     <div className="grid">
       {items.map(item => (
-        <Card key={item.id} item={item} onClick={() => onOpen(item)} />
+        <Card key={item.id} item={item} onOpenDetails={onOpen} />
       ))}
     </div>
   );
