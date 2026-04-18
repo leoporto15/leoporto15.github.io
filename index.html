@@ -5,19 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Marketplace de Soluções de IA</title>
   <meta name="description" content="Skills, playbooks Devin, agentes e hooks da comunidade. Instale em segundos e acelere seu fluxo de desenvolvimento com IA.">
+  <!--
+    SRI — compute hashes before deploying to production:
+      curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A
+    Or use https://www.srihash.org
+    Add integrity="sha384-<hash>" to each script tag below.
+  -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://raw.githubusercontent.com; img-src 'self' data:; frame-ancestors 'none';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css"/>
   <script>
+    // Whitelist: only accept known-safe theme values
     const saved = localStorage.getItem("theme");
-    document.documentElement.setAttribute("data-theme", saved || "dark");
+    document.documentElement.setAttribute("data-theme", saved === "light" ? "light" : "dark");
   </script>
 </head>
 <body>
   <div id="root"></div>
-  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
   <script type="text/babel" src="icons.jsx"></script>
   <script type="text/babel" src="app.jsx"></script>
