@@ -141,7 +141,7 @@
   </main>
 
   <!-- Install / Docs Modal -->
-  <div class="modal-backdrop" id="modal-backdrop" hidden>
+  <div class="modal-backdrop" id="modal-backdrop" onclick="if(event.target===this)closeModal()">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div class="modal-header">
         <div class="modal-title-group">
@@ -174,7 +174,7 @@
             </div>
           </div>
 
-          <div id="install-tab-project" hidden>
+          <div id="install-tab-project" style="display:none">
             <p class="install-note">Disponível apenas no projeto atual</p>
             <div class="code-block">
               <pre><code id="install-cmd-project"></code></pre>

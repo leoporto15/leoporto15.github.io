@@ -157,7 +157,7 @@ function openModal(id) {
   showInstallTab('user', document.querySelector('.install-tab'));
 
   // Show modal
-  document.getElementById('modal-backdrop').hidden = false;
+  document.getElementById('modal-backdrop').classList.add('is-open');
   document.body.style.overflow = 'hidden';
 
   // Load docs async
@@ -221,19 +221,17 @@ async function loadDocs(item) {
 }
 
 function closeModal() {
-  document.getElementById('modal-backdrop').hidden = true;
+  document.getElementById('modal-backdrop').classList.remove('is-open');
   document.body.style.overflow = '';
   currentItem = null;
 }
 
 // ── Install tabs ────────────────────────────────────────
 function showInstallTab(tab, clickedBtn) {
-  document.getElementById('install-tab-user').hidden    = tab !== 'user';
-  document.getElementById('install-tab-project').hidden = tab !== 'project';
+  document.getElementById('install-tab-user').style.display    = tab === 'user'    ? 'block' : 'none';
+  document.getElementById('install-tab-project').style.display = tab === 'project' ? 'block' : 'none';
   document.querySelectorAll('.install-tab').forEach(b => b.classList.remove('active'));
-  // Mark correct button active
-  const tabs = document.querySelectorAll('.install-tab');
-  tabs[tab === 'user' ? 0 : 1].classList.add('active');
+  document.querySelectorAll('.install-tab')[tab === 'user' ? 0 : 1].classList.add('active');
 }
 
 // ── Copy to clipboard ───────────────────────────────────
