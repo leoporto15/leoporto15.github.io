@@ -1,215 +1,25 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Marketplace de Soluções de IA</title>
-  <meta name="description" content="Descubra e instale skills, playbooks, agentes e hooks para Claude Code, Devin e outras IAs de desenvolvimento.">
-  <meta property="og:title" content="Marketplace de Soluções de IA">
-  <meta property="og:description" content="Skills, playbooks Devin, agentes e hooks para acelerar seu fluxo com IA.">
-  <meta property="og:type" content="website">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <meta name="description" content="Skills, playbooks Devin, agentes e hooks da comunidade. Instale em segundos e acelere seu fluxo de desenvolvimento com IA.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css"/>
+  <script>
+    const saved = localStorage.getItem("theme");
+    document.documentElement.setAttribute("data-theme", saved || "dark");
+  </script>
 </head>
 <body>
-
-  <!-- Header -->
-  <header class="header">
-    <div class="header-inner">
-      <a href="/" class="logo">
-        <span class="logo-icon">✦</span>
-        <span class="logo-text">Soluções de IA <strong>Marketplace</strong></span>
-      </a>
-      <nav class="nav">
-        <a href="#browse" class="nav-link">Explorar</a>
-        <a href="https://github.com/leoporto15/leoporto15.github.io" target="_blank" class="nav-link">Contribuir →</a>
-      </nav>
-    </div>
-  </header>
-
-  <!-- Hero — full viewport -->
-  <section class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-inner">
-
-      <div class="hero-text">
-        <div class="hero-badge">Beta</div>
-        <h1 class="hero-title">
-          Marketplace de<br><span class="gradient-text">Soluções de IA</span>
-        </h1>
-        <p class="hero-subtitle">
-          Skills para Claude Code, playbooks para Devin, agentes autônomos e hooks.<br>
-          Instale em segundos e acelere seu fluxo de desenvolvimento com IA.
-        </p>
-      </div>
-
-      <!-- Large category cards -->
-      <div class="hero-categories" id="hero-categories">
-        <button class="hero-cat-card" data-type="skill" onclick="heroSelect('skill')">
-          <span class="hero-cat-icon">⚡</span>
-          <span class="hero-cat-name">Skills</span>
-          <span class="hero-cat-desc">Slash commands para Claude Code</span>
-          <span class="hero-cat-count" id="hc-skill">0</span>
-        </button>
-        <button class="hero-cat-card" data-type="playbook" onclick="heroSelect('playbook')">
-          <span class="hero-cat-icon">📋</span>
-          <span class="hero-cat-name">Playbooks</span>
-          <span class="hero-cat-desc">Fluxos automáticos para Devin</span>
-          <span class="hero-cat-count" id="hc-playbook">0</span>
-        </button>
-        <button class="hero-cat-card" data-type="agent" onclick="heroSelect('agent')">
-          <span class="hero-cat-icon">🤖</span>
-          <span class="hero-cat-name">Agentes</span>
-          <span class="hero-cat-desc">Subagentes especializados</span>
-          <span class="hero-cat-count" id="hc-agent">0</span>
-        </button>
-        <button class="hero-cat-card" data-type="hook" onclick="heroSelect('hook')">
-          <span class="hero-cat-icon">🔗</span>
-          <span class="hero-cat-name">Hooks</span>
-          <span class="hero-cat-desc">Automações por evento</span>
-          <span class="hero-cat-count" id="hc-hook">0</span>
-        </button>
-      </div>
-
-      <div class="scroll-hint" onclick="scrollToBrowse()">
-        Explorar tudo <span class="scroll-arrow">↓</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- Browse — below the fold -->
-  <main class="browse" id="browse">
-    <div class="container">
-
-      <!-- Search bar -->
-      <div class="search-bar">
-        <span class="search-icon">🔍</span>
-        <input
-          type="text"
-          id="search-input"
-          placeholder="Buscar skills, agentes, playbooks..."
-          autocomplete="off"
-        />
-        <kbd class="search-shortcut">⌘K</kbd>
-      </div>
-
-      <!-- Toolbar -->
-      <div class="toolbar">
-        <div class="toolbar-left">
-          <span class="results-count" id="results-count">Carregando…</span>
-          <button class="clear-filter-btn" id="clear-filter-btn" onclick="clearFilter()" hidden>
-            ✕ Limpar filtro
-          </button>
-        </div>
-        <select class="sort-select" id="sort-select">
-          <option value="featured">Destaques primeiro</option>
-          <option value="name">Nome A–Z</option>
-          <option value="type">Por tipo</option>
-        </select>
-      </div>
-
-      <!-- Items grid -->
-      <div class="items-grid" id="items-grid"></div>
-
-      <div class="empty-state" id="empty-state" hidden>
-        <div class="empty-icon">🔍</div>
-        <h3>Nenhum item encontrado</h3>
-        <p>Tente buscar por outro termo ou limpar os filtros.</p>
-      </div>
-
-    </div>
-  </main>
-
-  <!-- Install / Docs Modal -->
-  <div class="modal-backdrop" id="modal-backdrop" onclick="if(event.target===this)closeModal()">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <div class="modal-header">
-        <div class="modal-title-group">
-          <span class="modal-icon" id="modal-icon" aria-hidden="true"></span>
-          <div>
-            <h2 class="modal-title" id="modal-title"></h2>
-            <div class="modal-meta" id="modal-meta"></div>
-          </div>
-        </div>
-        <button class="modal-close" onclick="closeModal()" aria-label="Fechar">✕</button>
-      </div>
-
-      <div class="modal-body">
-        <p class="modal-description" id="modal-description"></p>
-        <div class="modal-tags" id="modal-tags"></div>
-
-        <div class="install-section">
-          <h3 class="section-title">Instalação</h3>
-          <div class="install-tabs">
-            <button class="install-tab active" onclick="showInstallTab('user', this)">👤 Global</button>
-            <button class="install-tab" onclick="showInstallTab('project', this)">📁 Projeto</button>
-          </div>
-          <div id="install-tab-user">
-            <p class="install-note">Disponível em todos os projetos</p>
-            <div class="code-block">
-              <pre><code id="install-cmd-user"></code></pre>
-              <button class="copy-btn" onclick="copyCmd('install-cmd-user', this)">📋 Copiar</button>
-            </div>
-          </div>
-          <div id="install-tab-project" style="display:none">
-            <p class="install-note">Disponível apenas no projeto atual</p>
-            <div class="code-block">
-              <pre><code id="install-cmd-project"></code></pre>
-              <button class="copy-btn" onclick="copyCmd('install-cmd-project', this)">📋 Copiar</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="docs-section">
-          <h3 class="section-title">Documentação</h3>
-          <div class="docs-loading" id="docs-loading">Carregando…</div>
-          <div class="docs-content markdown-body" id="docs-content"></div>
-        </div>
-
-        <div class="modal-actions">
-          <a href="#" class="btn btn-primary" id="modal-repo-btn" target="_blank" rel="noopener">Ver no GitHub →</a>
-          <button class="btn btn-secondary" onclick="closeModal()">Fechar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CTA -->
-  <section class="cta-section">
-    <div class="container">
-      <div class="cta-card">
-        <div class="cta-text">
-          <h2>Publique sua solução</h2>
-          <p>Criou uma skill, playbook Devin, agente ou hook? Adicione ao registry e compartilhe com a comunidade.</p>
-        </div>
-        <a href="https://github.com/leoporto15/leoporto15.github.io/blob/main/registry.json" target="_blank" class="btn btn-primary">
-          Contribuir com registry.json →
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-content">
-        <div class="footer-brand">
-          <span class="logo-icon">✦</span>
-          <span>Marketplace de Soluções de IA</span>
-        </div>
-        <div class="footer-links">
-          <a href="https://github.com/leoporto15/leoporto15.github.io" target="_blank">GitHub</a>
-          <a href="https://github.com/leoporto15/leoporto15.github.io/blob/main/registry.json" target="_blank">registry.json</a>
-          <a href="https://docs.anthropic.com/claude-code" target="_blank">Claude Code</a>
-          <a href="https://docs.devin.ai" target="_blank">Devin Docs</a>
-        </div>
-      </div>
-      <p class="footer-copy">Feito com ♥ para a comunidade de desenvolvimento com IA</p>
-    </div>
-  </footer>
-
-  <script src="assets/js/app.js"></script>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+  <script type="text/babel" src="icons.jsx"></script>
+  <script type="text/babel" src="app.jsx"></script>
 </body>
 </html>
